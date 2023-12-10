@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.notes.domain.model.Note
 import com.example.notes.ui.mainScreen.HomeScreen
+import com.example.notes.ui.notesSceen.NoteScreen
 import com.example.notes.ui.theme.NotesTheme
 
 class MainActivity : ComponentActivity() {
@@ -31,7 +32,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen(notes = note)
+//                    HomeScreen(notes = note)
+                    NoteScreen()
                 }
             }
         }
