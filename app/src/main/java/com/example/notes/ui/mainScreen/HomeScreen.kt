@@ -44,7 +44,7 @@ fun HomeScreen(
         )
         {
             items(notes){note->
-                NotesCard(note = note , onDelete = {} , onEdit = {}, isEnable = false )
+                NotesCard(note = note , onDelete = {} , onEdit = {}, onCardClick = {}, isEnable = false )
             }
         }
     }
