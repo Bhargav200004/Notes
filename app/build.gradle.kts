@@ -72,6 +72,11 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-rc01")
 
+    //navigation
+    val navVersion = "2.7.5"
+
+    implementation("androidx.navigation:navigation-compose:$navVersion")
+
 
 
     //Fonts

@@ -21,7 +21,12 @@ import androidx.compose.ui.Modifier
 import com.example.notes.ui.components.NoteAdd
 
 @Composable
-fun NoteScreen() {
+fun NoteScreenNav() {
+    NoteScreen()
+}
+
+@Composable
+private fun NoteScreen() {
 
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
