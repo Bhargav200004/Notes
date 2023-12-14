@@ -14,28 +14,43 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.example.notes.ui.components.NoteAdd
 
 @Composable
-fun NoteScreenNav() {
-    NoteScreen()
+fun NoteScreenNav(navController: NavHostController) {
+
+    val viewModel : NoteScreenViewModel = hiltViewModel()
+
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+
+
+    NoteScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        navController = navController
+    )
 }
 
 @Composable
-private fun NoteScreen() {
+private fun NoteScreen(
+    state : NotesScreenStates,
+    onEvent : (NotesScreenEvent) -> Unit,
+    navController: NavHostController) {
 
-    var title by remember { mutableStateOf("") }
-    var content by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             NoteScreenTopBar(
-                onSave = {},
-                onBackButton = {}
+                onSave = {
+                    onEvent(NotesScreenEvent.SaveNote)
+                    navController.navigateUp()
+                },
+                onBackButton = {navController.navigateUp()}
             )
         }
     ) {paddingValues ->  
@@ -45,10 +60,10 @@ private fun NoteScreen() {
                 .padding(paddingValues = paddingValues)
         ) {
             NoteAdd(
-                title = title,
-                content = content,
-                onTitleChange = { title = it },
-                onContentChange = {content = it}
+                title = state.title,
+                content = state.content,
+                onTitleChange = { onEvent(NotesScreenEvent.OnTitleChange(it)) },
+                onContentChange = {onEvent(NotesScreenEvent.OnContentChange(it))}
             )
         }
 

@@ -20,6 +20,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.notes.domain.model.Note
 import com.example.notes.ui.components.NotesCard
+import com.example.notes.util.Constant.NOTE_SCREEN_NAV
+
+val note = listOf(
+    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
+    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
+    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
+    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
+    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
+    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
+)
 
 
 @Composable
@@ -31,6 +41,7 @@ fun HomeScreenNav(navController: NavHostController) {
     HomeScreen(
         state = state,
         onEvent = viewModel::onEvent,
+        navController = navController,
     )
 
 
@@ -41,13 +52,13 @@ fun HomeScreenNav(navController: NavHostController) {
 private fun HomeScreen(
     state : HomeScreenState,
     onEvent : (HomeScreenEvent) -> Unit,
-    notes : List<Note> = emptyList(),
+    navController: NavHostController
 ) {
 
     Scaffold(
         topBar = {
             TopBarHomeScreen(
-                onAddClick = { onEvent(HomeScreenEvent.SaveUpdateNote) }
+                onAddClick = { navController.navigate(route = NOTE_SCREEN_NAV)  }
             )
         }
     ) { paddingValues ->
@@ -57,14 +68,13 @@ private fun HomeScreen(
                 .padding(paddingValues)
         )
         {
-            items(notes){_->
-                state.note?.let {
+            items(state.notes){notes->
                     NotesCard(
-                        note = it,
+                        note = notes,
                         onDelete = {onEvent(HomeScreenEvent.DeleteNote)},
                         onEdit = { onEvent(HomeScreenEvent.SaveUpdateNote) },
                     )
-                }
+
             }
         }
     }
@@ -82,7 +92,7 @@ fun TopBarHomeScreen(
         )
     },
         actions = {
-            IconButton(onClick = { onAddClick() }) {
+            IconButton(onClick =  onAddClick) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "ADD Button")
             }
         }

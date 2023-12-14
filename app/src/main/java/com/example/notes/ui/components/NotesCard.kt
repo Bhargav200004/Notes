@@ -56,7 +56,7 @@ fun NotesCard(
             ) {
                 Text(text = note.title, style = MaterialTheme.typography.titleLarge)
                 Row {
-                    IconButton(onClick = { onEdit(note.id) }) {
+                    IconButton(onClick = { note.id?.let { onEdit(it) } }) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit notes"

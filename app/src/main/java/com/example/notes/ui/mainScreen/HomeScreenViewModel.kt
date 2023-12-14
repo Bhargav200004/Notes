@@ -1,5 +1,6 @@
 package com.example.notes.ui.mainScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notes.domain.repository.NoteRepository
@@ -17,6 +18,12 @@ class HomeScreenViewModel @Inject constructor(
     private val noteRepository: NoteRepository
 ) : ViewModel(){
 
+    init {
+        fetchAllNotes()
+    }
+
+
+
     private val _state = MutableStateFlow(HomeScreenState())
     val state  = combine(
         _state,
@@ -25,7 +32,6 @@ class HomeScreenViewModel @Inject constructor(
         state.copy(
             notes = notes
         )
-
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000 ),
@@ -45,7 +51,8 @@ class HomeScreenViewModel @Inject constructor(
                     it.copy(content = event.content)
                 }
             }
-            is HomeScreenEvent.GetNoteById -> fetchTask()
+            is HomeScreenEvent.GetNoteById -> {
+            }
             HomeScreenEvent.DeleteNote -> deleteNote()
             HomeScreenEvent.SaveUpdateNote -> saveNote()
         }
@@ -69,8 +76,22 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private fun fetchTask() {
-        TODO("Not yet implemented")
+    private fun fetchAllNotes() {
+        viewModelScope.launch {
+            try {
+                noteRepository.getAllNotes().let {
+                    _state.update {note->
+                        note.copy(
+                            title = note.title,
+                            content = note.content
+                        )
+                    }
+                }
+            }
+            catch (e : Exception){
+                Log.e("getnotes" , "${e.message}")
+            }
+        }
     }
 
 
