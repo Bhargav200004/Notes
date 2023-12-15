@@ -16,80 +16,66 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val noteRepository: NoteRepository
-) : ViewModel(){
+) : ViewModel() {
 
     init {
-        fetchAllNotes()
+        fetchNoteById()
     }
 
 
-
     private val _state = MutableStateFlow(HomeScreenState())
-    val state  = combine(
+    val state = combine(
         _state,
         noteRepository.getAllNotes()
-    ){state , notes ->
+    ) { state, notes ->
         state.copy(
             notes = notes
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000 ),
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
         initialValue = HomeScreenState()
     )
 
 
-    fun onEvent(event : HomeScreenEvent){
-        when (event){
-            is HomeScreenEvent.OnTitleChange -> {
-                _state.update {
-                    it.copy(title = event.title)
-                }
-            }
-            is HomeScreenEvent.OnContentChange -> {
-                _state.update {
-                    it.copy(content = event.content)
-                }
-            }
-            is HomeScreenEvent.GetNoteById -> {
-            }
+    fun onEvent(event: HomeScreenEvent) {
+        when (event) {
             HomeScreenEvent.DeleteNote -> deleteNote()
-            HomeScreenEvent.SaveUpdateNote -> saveNote()
-        }
-    }
-
-
-
-    private fun saveNote() {
-        viewModelScope.launch {
-            state.value.note?.let {note ->
-                noteRepository.upsertNote(note = note)
-            }
+            is HomeScreenEvent.GetNoteById -> TODO()
         }
     }
 
     private fun deleteNote() {
         viewModelScope.launch {
-            state.value.note?.let { note->
-                noteRepository.deleteNote(note= note)
+            try {
+                val state = state.value.id
+                if (state != null) {
+                    noteRepository.deleteNote(state)
+                }
+                Log.e("state", "$state")
+            } catch (e: Exception) {
+                Log.e("DeleteNote", "${e.message}")
             }
         }
     }
 
-    private fun fetchAllNotes() {
+    private fun fetchNoteById() {
         viewModelScope.launch {
             try {
-                noteRepository.getAllNotes().let {
-                    _state.update {note->
-                        note.copy(
+//                TODO("adding note Id")
+                noteRepository.getNoteById(4)?.let { note ->
+                    _state.update { homeScreenState ->
+                        homeScreenState.copy(
+                            id = note.id,
                             title = note.title,
                             content = note.content
                         )
+
                     }
+
                 }
-            }
-            catch (e : Exception){
-                Log.e("getnotes" , "${e.message}")
+            } catch (e: Exception) {
+                Log.e("ById", "${e.message}")
             }
         }
     }

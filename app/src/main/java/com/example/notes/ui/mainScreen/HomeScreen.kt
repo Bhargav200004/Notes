@@ -14,11 +14,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.notes.domain.model.Note
+import com.example.notes.ui.components.DeleteDialog
 import com.example.notes.ui.components.NotesCard
 import com.example.notes.util.Constant.NOTE_SCREEN_NAV
 
@@ -55,6 +60,22 @@ private fun HomeScreen(
     navController: NavHostController
 ) {
 
+    var isDeleteButton by rememberSaveable { mutableStateOf(false)}
+
+
+    DeleteDialog(
+        isOpen =isDeleteButton,
+        title = "Delete Note",
+        bodyText = "Are you sure you want to delete note.",
+        onDismissRequest = { isDeleteButton = false },
+        onSaveRequest = {
+            onEvent(HomeScreenEvent.DeleteNote)
+            isDeleteButton = false
+        }
+    )
+
+
+
     Scaffold(
         topBar = {
             TopBarHomeScreen(
@@ -68,12 +89,12 @@ private fun HomeScreen(
                 .padding(paddingValues)
         )
         {
-            items(state.notes){notes->
-                    NotesCard(
-                        note = notes,
-                        onDelete = {onEvent(HomeScreenEvent.DeleteNote)},
-                        onEdit = { onEvent(HomeScreenEvent.SaveUpdateNote) },
-                    )
+            items(state.notes){note->
+                NotesCard(
+                    note = note,
+                    onDelete = { isDeleteButton = true },
+                    onEdit = { },
+                )
 
             }
         }
