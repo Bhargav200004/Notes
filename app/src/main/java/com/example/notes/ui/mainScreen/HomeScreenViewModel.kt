@@ -18,11 +18,6 @@ class HomeScreenViewModel @Inject constructor(
     private val noteRepository: NoteRepository
 ) : ViewModel() {
 
-    init {
-        fetchNoteById()
-    }
-
-
     private val _state = MutableStateFlow(HomeScreenState())
     val state = combine(
         _state,
@@ -37,11 +32,16 @@ class HomeScreenViewModel @Inject constructor(
         initialValue = HomeScreenState()
     )
 
+    //SnackBAr
+
+
 
     fun onEvent(event: HomeScreenEvent) {
         when (event) {
             HomeScreenEvent.DeleteNote -> deleteNote()
-            is HomeScreenEvent.GetNoteById -> TODO()
+            is HomeScreenEvent.GetNoteById -> {
+                fetchNoteById(id = event.id)
+            }
         }
     }
 
@@ -59,11 +59,10 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private fun fetchNoteById() {
+    private fun fetchNoteById(id: Int) {
         viewModelScope.launch {
             try {
-//                TODO("adding note Id")
-                noteRepository.getNoteById(4)?.let { note ->
+                noteRepository.getNoteById(id)?.let { note ->
                     _state.update { homeScreenState ->
                         homeScreenState.copy(
                             id = note.id,

@@ -92,7 +92,11 @@ private fun HomeScreen(
             items(state.notes){note->
                 NotesCard(
                     note = note,
-                    onDelete = { isDeleteButton = true },
+                    onDelete = {
+                        onEvent(HomeScreenEvent.GetNoteById(id =
+                        note.id ?: return@NotesCard))
+                        isDeleteButton = true
+                    },
                     onEdit = { },
                 )
 
