@@ -1,12 +1,16 @@
 package com.example.notes.ui.mainScreen
 
 import android.util.Log
+import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notes.domain.repository.NoteRepository
+import com.example.notes.util.SnackBarEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -32,8 +36,9 @@ class HomeScreenViewModel @Inject constructor(
         initialValue = HomeScreenState()
     )
 
-    //SnackBAr
-
+    //SnackBar
+    private val _snackBarEventFlow = MutableSharedFlow<SnackBarEvent>()
+    val snackBarEventFlow = _snackBarEventFlow.asSharedFlow()
 
 
     fun onEvent(event: HomeScreenEvent) {
@@ -41,6 +46,17 @@ class HomeScreenViewModel @Inject constructor(
             HomeScreenEvent.DeleteNote -> deleteNote()
             is HomeScreenEvent.GetNoteById -> {
                 fetchNoteById(id = event.id)
+            }
+
+            HomeScreenEvent.OnEdit -> {
+                viewModelScope.launch {
+                    _snackBarEventFlow.emit(
+                        SnackBarEvent.ShowSnackBar(
+                            message = "Coming Soon",
+                            duration = SnackbarDuration.Long
+                        )
+                    )
+                }
             }
         }
     }
@@ -52,9 +68,18 @@ class HomeScreenViewModel @Inject constructor(
                 if (state != null) {
                     noteRepository.deleteNote(state)
                 }
-                Log.e("state", "$state")
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Successfully delete the note",
+                        duration = SnackbarDuration.Short
+                    )
+                )
             } catch (e: Exception) {
-                Log.e("DeleteNote", "${e.message}")
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't delete the note ${e.message}"
+                    )
+                )
             }
         }
     }
@@ -78,6 +103,5 @@ class HomeScreenViewModel @Inject constructor(
             }
         }
     }
-
 
 }

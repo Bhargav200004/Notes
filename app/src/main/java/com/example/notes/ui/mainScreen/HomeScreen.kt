@@ -10,9 +10,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,20 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.example.notes.domain.model.Note
 import com.example.notes.ui.components.DeleteDialog
 import com.example.notes.ui.components.NotesCard
 import com.example.notes.util.Constant.NOTE_SCREEN_NAV
-
-val note = listOf(
-    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
-    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
-    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
-    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
-    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
-    Note(id = 1, title = "BHargav" , content = "ajhbfuhaufihasi"),
-)
-
+import com.example.notes.util.SnackBarEvent
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeScreenNav(navController: NavHostController) {
@@ -45,6 +40,7 @@ fun HomeScreenNav(navController: NavHostController) {
 
     HomeScreen(
         state = state,
+        snackBarEvent = viewModel.snackBarEventFlow,
         onEvent = viewModel::onEvent,
         navController = navController,
     )
@@ -56,11 +52,14 @@ fun HomeScreenNav(navController: NavHostController) {
 @Composable
 private fun HomeScreen(
     state : HomeScreenState,
+    snackBarEvent : SharedFlow<SnackBarEvent>,
     onEvent : (HomeScreenEvent) -> Unit,
     navController: NavHostController
 ) {
 
     var isDeleteButton by rememberSaveable { mutableStateOf(false)}
+
+    val snackBarHostState = remember{ SnackbarHostState()}
 
 
     DeleteDialog(
@@ -74,6 +73,23 @@ private fun HomeScreen(
         }
     )
 
+    LaunchedEffect(key1 = true){
+        snackBarEvent.collectLatest {event->
+            when(event){
+                is SnackBarEvent.ShowSnackBar -> {
+                    snackBarHostState.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
+                }
+                SnackBarEvent.NavigateUp -> {
+                    navController.navigateUp()
+                }
+            }
+
+        }
+    }
+
 
 
     Scaffold(
@@ -81,7 +97,8 @@ private fun HomeScreen(
             TopBarHomeScreen(
                 onAddClick = { navController.navigate(route = NOTE_SCREEN_NAV)  }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState)}
     ) { paddingValues ->
 
         LazyColumn(

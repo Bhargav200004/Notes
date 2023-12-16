@@ -10,15 +10,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.notes.ui.components.NoteAdd
+import com.example.notes.util.SnackBarEvent
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun NoteScreenNav(navController: NavHostController) {
@@ -31,6 +38,7 @@ fun NoteScreenNav(navController: NavHostController) {
 
     NoteScreen(
         state = state,
+        snackBarEvent = viewModel.snackBarFlow,
         onEvent = viewModel::onEvent,
         navController = navController
     )
@@ -39,8 +47,25 @@ fun NoteScreenNav(navController: NavHostController) {
 @Composable
 private fun NoteScreen(
     state : NotesScreenStates,
+    snackBarEvent : SharedFlow<SnackBarEvent>,
     onEvent : (NotesScreenEvent) -> Unit,
     navController: NavHostController) {
+
+    val snackBarHost = remember { SnackbarHostState()}
+
+    LaunchedEffect(key1 = true){
+        snackBarEvent.collectLatest {event->
+            when(event){
+                SnackBarEvent.NavigateUp -> {}
+                is SnackBarEvent.ShowSnackBar -> {
+                    snackBarHost.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
+                }
+            }
+        }
+    }
 
 
     Scaffold(
@@ -52,7 +77,8 @@ private fun NoteScreen(
                 },
                 onBackButton = {navController.navigateUp()}
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackBarHost)}
     ) {paddingValues ->  
         
         Column(
