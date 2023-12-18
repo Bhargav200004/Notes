@@ -1,6 +1,5 @@
 package com.example.notes.ui.notesSceen
 
-import android.util.Log
 import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NoteScreenViewModel @Inject constructor(
-    val noteRepository: NoteRepository
+    private val noteRepository: NoteRepository
 ): ViewModel() {
 
     private val _state = MutableStateFlow(NotesScreenStates())
@@ -68,18 +67,28 @@ class NoteScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val state = _state.value
             try {
-                noteRepository.upsertNote(
-                    note = Note(
-                        title = state.title,
-                        content = state.content
+                if (state.title != "" && state.content !="" ) {
+                    noteRepository.upsertNote(
+                        note = Note(
+                            title = state.title,
+                            content = state.content
+                        )
                     )
-                )
-                _snackBarEventFlow.emit(
-                    SnackBarEvent.ShowSnackBar(
-                        message = "Successfully created note",
-                        duration = SnackbarDuration.Short
+                    _snackBarEventFlow.emit(
+                        SnackBarEvent.ShowSnackBar(
+                            message = "Successfully created note",
+                            duration = SnackbarDuration.Short
+                        )
                     )
-                )
+                }
+                else{
+                    _snackBarEventFlow.emit(
+                        SnackBarEvent.ShowSnackBar(
+                            message = "Please enter blank part",
+                            duration = SnackbarDuration.Long
+                        )
+                    )
+                }
             }
             catch (e:Exception){
                 _snackBarEventFlow.emit(
