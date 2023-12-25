@@ -95,7 +95,7 @@ private fun HomeScreen(
     Scaffold(
         topBar = {
             TopBarHomeScreen(
-                onAddClick = { navController.navigate(route = NOTE_SCREEN_NAV)  }
+                onAddClick = { navController.navigate(route = "$NOTE_SCREEN_NAV?id={id}")  }
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState)}
@@ -114,7 +114,8 @@ private fun HomeScreen(
                         note.id ?: return@NotesCard))
                         isDeleteButton = true
                     },
-                    onEdit = { },
+                    onEdit = {
+                    },
                 )
 
             }

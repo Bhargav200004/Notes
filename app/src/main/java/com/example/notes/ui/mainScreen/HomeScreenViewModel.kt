@@ -94,9 +94,7 @@ class HomeScreenViewModel @Inject constructor(
                             title = note.title,
                             content = note.content
                         )
-
                     }
-
                 }
             } catch (e: Exception) {
                 Log.e("ById", "${e.message}")

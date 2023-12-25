@@ -1,6 +1,7 @@
 package com.example.notes.ui.notesSceen
 
 import androidx.compose.material3.SnackbarDuration
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notes.domain.model.Note
@@ -19,8 +20,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NoteScreenViewModel @Inject constructor(
-    private val noteRepository: NoteRepository
+    private val noteRepository: NoteRepository,
+    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
+
+    init {
+        val id = savedStateHandle.get<String>("id")
+        viewModelScope.launch {
+            if (id != null) {
+                noteRepository.getNoteById(id = id.toInt())?.let {note ->
+                    _state.update { homeScreenState ->
+                        homeScreenState.copy(
+                            id = note.id,
+                            title = note.title,
+                            content = note.content
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     private val _state = MutableStateFlow(NotesScreenStates())
     val state = combine(

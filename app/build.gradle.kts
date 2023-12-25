@@ -70,12 +70,13 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-rc01")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0-rc02")
 
     //navigation
-    val navVersion = "2.7.5"
+    val navVersion = "2.7.6"
 
     implementation("androidx.navigation:navigation-compose:$navVersion")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
 
 
