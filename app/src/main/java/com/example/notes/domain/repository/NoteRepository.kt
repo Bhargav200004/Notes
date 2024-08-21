@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {
 
-    suspend fun upsertNote(note : Note)
+    suspend fun updateNote(note : Note)
+
+    suspend fun insertNote(note: Note)
 
     suspend fun deleteNote(noteId: Int)
 

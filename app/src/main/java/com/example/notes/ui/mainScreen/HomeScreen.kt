@@ -1,5 +1,6 @@
 package com.example.notes.ui.mainScreen
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,9 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.example.notes.ui.appNavigation.Route
 import com.example.notes.ui.components.DeleteDialog
 import com.example.notes.ui.components.NotesCard
-import com.example.notes.util.Constant.NOTE_SCREEN_NAV
 import com.example.notes.util.SnackBarEvent
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -95,7 +96,10 @@ private fun HomeScreen(
     Scaffold(
         topBar = {
             TopBarHomeScreen(
-                onAddClick = { navController.navigate(route = "$NOTE_SCREEN_NAV?id={id}")  }
+                onAddClick = {
+                    navController.navigate(route = Route.NoteScreen)
+                }
+
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState)}
@@ -115,6 +119,8 @@ private fun HomeScreen(
                         isDeleteButton = true
                     },
                     onEdit = {
+                        navController.navigate(Route.EditScreen(id = note.id.toString()))
+                        Log.d("CheckingId" , note.id.toString())
                     },
                 )
 

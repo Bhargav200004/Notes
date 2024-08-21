@@ -1,6 +1,5 @@
-package com.example.notes.ui.notesSceen
+package com.example.notes.ui.editScreen
 
-import android.util.Log
 import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -22,12 +21,29 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NoteScreenViewModel @Inject constructor(
+class EditScreenViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _state = MutableStateFlow(NotesScreenStates())
+    init {
+        val id = savedStateHandle.toRoute<Route.EditScreen>().id
+        viewModelScope.launch {
+            if (id != null) {
+                noteRepository.getNoteById(id = id.toInt())?.let {note ->
+                    _state.update { homeScreenState ->
+                        homeScreenState.copy(
+                            id = note.id,
+                            title = note.title,
+                            content = note.content
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private val _state = MutableStateFlow(EditScreenStates())
     val state = combine(
         _state,
         noteRepository.getAllNotes()
@@ -37,7 +53,7 @@ class NoteScreenViewModel @Inject constructor(
     ) }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = NotesScreenStates()
+        initialValue = EditScreenStates()
     )
 
 
@@ -46,35 +62,36 @@ class NoteScreenViewModel @Inject constructor(
     private val _snackBarEventFlow = MutableSharedFlow<SnackBarEvent>()
     val snackBarFlow = _snackBarEventFlow.asSharedFlow()
 
-    fun onEvent(event : NotesScreenEvent){
+    fun onEvent(event : EditScreenEvent){
         when(event){
-            is NotesScreenEvent.OnTitleChange -> {
+            is EditScreenEvent.OnTitleChange -> {
                 _state.update {
                     it.copy(
                         title = event.title
                     )
                 }
             }
-            is NotesScreenEvent.OnContentChange -> {
+            is EditScreenEvent.OnContentChange -> {
                 _state.update {
                     it.copy(
                         content = event.content
                     )
                 }
             }
-            NotesScreenEvent.SaveNote -> saveNote()
-            NotesScreenEvent.DeleteNote -> TODO()
-            NotesScreenEvent.IsCompleteEvent -> TODO()
+            EditScreenEvent.EditNote -> state.value.id?.let { editNote(id = it) }
+            EditScreenEvent.DeleteNote -> TODO()
+            EditScreenEvent.IsCompleteEvent -> TODO()
         }
     }
 
-    private fun saveNote() {
+    private fun editNote(id : Int) {
         viewModelScope.launch {
             val state = _state.value
             try {
                 if (state.title != "" && state.content !="" ) {
-                    noteRepository.insertNote(
+                    noteRepository.updateNote(
                         note = Note(
+                            id = id,
                             title = state.title,
                             content = state.content
                         )

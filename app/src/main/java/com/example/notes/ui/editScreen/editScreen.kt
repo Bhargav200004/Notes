@@ -1,10 +1,10 @@
-package com.example.notes.ui.notesSceen
+package com.example.notes.ui.editScreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,15 +28,15 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun NoteScreenNav(navController: NavHostController) {
+fun EditScreenNav(navController: NavHostController) {
 
-    val viewModel: NoteScreenViewModel = hiltViewModel()
+    val viewModel: EditScreenViewModel = hiltViewModel()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
 
 
-    NoteScreen(
+    EditScreen(
         state = state,
         snackBarEvent = viewModel.snackBarFlow,
         onEvent = viewModel::onEvent,
@@ -45,10 +45,10 @@ fun NoteScreenNav(navController: NavHostController) {
 }
 
 @Composable
-private fun NoteScreen(
-    state: NotesScreenStates,
+private fun EditScreen(
+    state: EditScreenStates,
     snackBarEvent: SharedFlow<SnackBarEvent>,
-    onEvent: (NotesScreenEvent) -> Unit,
+    onEvent: (EditScreenEvent) -> Unit,
     navController: NavHostController
 ) {
 
@@ -71,9 +71,9 @@ private fun NoteScreen(
 
     Scaffold(
         topBar = {
-            NoteScreenTopBar(
-                onSave = {
-                    onEvent(NotesScreenEvent.SaveNote)
+            EditScreenTopBar(
+                onEdit = {
+                    onEvent(EditScreenEvent.EditNote)
                     navController.navigateUp()
                 },
                 onBackButton = { navController.navigateUp() }
@@ -89,8 +89,8 @@ private fun NoteScreen(
             NoteAdd(
                 title = state.title,
                 content = state.content,
-                onTitleChange = { onEvent(NotesScreenEvent.OnTitleChange(it)) },
-                onContentChange = { onEvent(NotesScreenEvent.OnContentChange(it)) }
+                onTitleChange = { onEvent(EditScreenEvent.OnTitleChange(it)) },
+                onContentChange = { onEvent(EditScreenEvent.OnContentChange(it)) }
             )
         }
 
@@ -99,8 +99,8 @@ private fun NoteScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NoteScreenTopBar(
-    onSave: () -> Unit,
+private fun EditScreenTopBar(
+    onEdit: () -> Unit,
     onBackButton: () -> Unit
 ) {
     TopAppBar(
@@ -114,10 +114,10 @@ private fun NoteScreenTopBar(
             }
         },
         actions = {
-            IconButton(onClick = { onSave() }) {
+            IconButton(onClick = { onEdit() }) {
                 Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "On Save"
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "On edit"
                 )
             }
 

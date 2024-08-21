@@ -1,17 +1,20 @@
 package com.example.notes.data.local
 
 import androidx.room.Dao
-import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Upsert
+import androidx.room.Update
 import com.example.notes.domain.model.Note
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
 
-    @Upsert
-    suspend fun upsertNote(note: Note)
+    @Update
+    suspend fun updateNote(note: Note)
+
+    @Insert
+    suspend fun insertNote(note: Note)
 
     @Query("DELETE FROM NOTE WHERE id=:noteId")
     suspend fun deleteNote(noteId: Int)

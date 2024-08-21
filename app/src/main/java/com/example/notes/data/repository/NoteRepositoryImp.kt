@@ -9,8 +9,12 @@ import javax.inject.Inject
 class NoteRepositoryImp @Inject constructor(
     private val noteDao : NoteDao
 ) : NoteRepository {
-    override suspend fun upsertNote(note: Note) {
-        noteDao.upsertNote(note= note)
+    override suspend fun updateNote(note: Note) {
+        noteDao.updateNote(note= note)
+    }
+
+    override suspend fun insertNote(note: Note) {
+        noteDao.insertNote(note = note)
     }
 
     override suspend fun deleteNote(noteId: Int) {
